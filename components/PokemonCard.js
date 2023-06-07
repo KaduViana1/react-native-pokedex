@@ -96,13 +96,14 @@ const styles = StyleSheet.create({
     marginTop: 3,
   },
   typesContainer: {
+    marginTop: 5,
     flexDirection: 'row',
     justifyContent: 'center',
   },
   typeIcon: {
     margin: 3,
-    height: 16,
-    width: 16,
+    height: 22,
+    width: 22,
   },
 });
 

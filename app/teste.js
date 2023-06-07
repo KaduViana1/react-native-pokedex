@@ -6,7 +6,6 @@ function Teste() {
 
   return (
     <>
-      <StatusBar barStyle={'light-content'} />
       <SafeAreaView style={styles.container}>
         <Text style={styles.text}>Testando</Text>
       </SafeAreaView>
