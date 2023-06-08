@@ -56,8 +56,7 @@ function CameraScreen() {
     if (image) {
       try {
         await MediaLibrary.createAssetAsync(image);
-        alert('Saved!');
-        setImage(noll);
+        setImage(null);
         router.back();
       } catch (error) {
         console.log(error);

@@ -15,8 +15,10 @@ import PokemonCard from '../components/PokemonCard';
 import { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
 import SideBar from '../components/SideBar';
-import * as MediaLibrary from 'expo-media-library';
+import * as ImagePicker from 'expo-image-picker';
 import Dropdown from '../components/Dropdown';
+import { useSelector, useDispatch } from 'react-redux';
+import { setImage } from '../features/profileImage/profileImageSlice';
 
 function Home() {
   const [pokemonsList, setPokemonsList] = useState([]);
@@ -27,13 +29,33 @@ function Home() {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const router = useRouter();
+  const profImage = useSelector(state => state.profileImage.image);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     fetchPokemons();
   }, []);
 
-  const askPermissions = async () => {
-    MediaLibrary.requestPermissionsAsync();
+  const askGalleryPermissions = async () => {
+    const galleryStatus =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (galleryStatus.status === 'granted') {
+      pickImage();
+    }
+  };
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      dispatch(setImage(result.assets[0].uri));
+      setShowDropdown(false);
+    }
   };
 
   const loader = () => {
@@ -97,7 +119,7 @@ function Home() {
               >
                 <Image
                   style={styles.headerButtons}
-                  source={require('../assets/teste.jpg')}
+                  source={profImage || require('../assets/teste.jpg')}
                 />
               </TouchableOpacity>
             ),
@@ -105,7 +127,10 @@ function Home() {
           }}
         />
 
-        <Dropdown showDropdown={showDropdown} />
+        <Dropdown
+          askGalleryPermissions={askGalleryPermissions}
+          showDropdown={showDropdown}
+        />
 
         <LinearGradient colors={['rgb(72, 229, 212)', 'rgb(0, 153, 255)']}>
           <FlatList

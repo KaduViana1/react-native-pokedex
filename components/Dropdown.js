@@ -9,14 +9,14 @@ import {
 import { Entypo } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
-function Dropdown({ showDropdown }) {
+function Dropdown({ showDropdown, askGalleryPermissions }) {
   const router = useRouter();
 
   return (
     <View
       style={[{ display: showDropdown ? 'flex' : 'none' }, styles.dropdown]}
     >
-      <Pressable>
+      <Pressable onPress={askGalleryPermissions}>
         <View style={[styles.button, styles.buttonTop]}>
           <Entypo name="folder" size={20} color={'white'} />
           <Text style={{ color: 'white', fontWeight: 'bold' }}>
@@ -40,7 +40,7 @@ function Dropdown({ showDropdown }) {
 const styles = StyleSheet.create({
   dropdown: {
     position: 'absolute',
-    right: 4,
+    right: 10,
     zIndex: 2,
     width: 150,
     height: 100,
