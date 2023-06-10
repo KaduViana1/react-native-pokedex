@@ -61,7 +61,7 @@ function Home() {
 }
 
 const styles = StyleSheet.create({
-  view: { padding: 16, alignItems: 'center' },
+  view: { alignItems: 'center' },
 });
 
 export default Home;
