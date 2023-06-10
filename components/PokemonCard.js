@@ -1,10 +1,12 @@
 import { useEffect, useState, memo } from 'react';
-import { View, StyleSheet, Text, Image } from 'react-native';
+import { View, StyleSheet, Text, Image, TouchableOpacity } from 'react-native';
 import axios from 'axios';
+import { useRouter } from 'expo-router';
 
 function PokemonCard({ name }) {
   const URL = `https://pokeapi.co/api/v2/pokemon/${name}`;
   const [pokemonData, setPokemonData] = useState({});
+  const router = useRouter();
 
   const defineType = type => {
     switch (type) {
@@ -58,8 +60,12 @@ function PokemonCard({ name }) {
       .catch(err => console.error(err));
   }, []);
 
+  const goToPokemonPage = () => {
+    router.push(`${name}`);
+  };
+
   return (
-    <View style={styles.card}>
+    <TouchableOpacity onPress={goToPokemonPage} style={styles.card}>
       <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 10 }}>
         {name?.toUpperCase()}
       </Text>
@@ -76,7 +82,7 @@ function PokemonCard({ name }) {
             );
           })}
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 

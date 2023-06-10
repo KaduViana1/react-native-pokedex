@@ -1,21 +1,47 @@
-import { LinearGradient } from 'expo-linear-gradient';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Pressable,
-} from 'react-native';
+import { View, Text, StyleSheet, Pressable, Alert } from 'react-native';
 import { Entypo } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import * as ImagePicker from 'expo-image-picker';
+import { useDispatch, useSelector } from 'react-redux';
+import { setImage } from '../redux/features/profileImage/profileImageSlice';
+import { toggleDropdown } from '../redux/features/profileImage/profileImageDropdownSlice';
 
-function Dropdown({ showDropdown, askGalleryPermissions }) {
+function Dropdown() {
   const router = useRouter();
+  const dispatch = useDispatch();
+  const dropDown = useSelector(state => state.profileImageDropdown.open);
+
+  const askGalleryPermissions = async () => {
+    const galleryStatus =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (galleryStatus.status === 'granted') {
+      pickImage();
+    } else {
+      Alert.alert('Media access must be granted');
+    }
+  };
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      dispatch(setImage(result.assets[0].uri));
+    }
+    dispatch(toggleDropdown());
+  };
+
+  const goToCamera = () => {
+    router.push('camera');
+    dispatch(toggleDropdown());
+  };
 
   return (
-    <View
-      style={[{ display: showDropdown ? 'flex' : 'none' }, styles.dropdown]}
-    >
+    <View style={[{ display: dropDown ? 'flex' : 'none' }, styles.dropdown]}>
       <Pressable onPress={askGalleryPermissions}>
         <View style={[styles.button, styles.buttonTop]}>
           <Entypo name="folder" size={20} color={'white'} />
@@ -25,7 +51,7 @@ function Dropdown({ showDropdown, askGalleryPermissions }) {
         </View>
       </Pressable>
       <View style={styles.center}></View>
-      <Pressable onPress={() => router.push('camera')}>
+      <Pressable onPress={goToCamera}>
         <View style={[styles.button, styles.buttonBottom]}>
           <Entypo name="camera" size={20} color={'black'} />
           <Text style={{ color: 'black', fontWeight: 'bold' }}>

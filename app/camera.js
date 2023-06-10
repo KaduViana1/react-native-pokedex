@@ -1,18 +1,18 @@
 import { Stack, useRouter } from 'expo-router';
 import {
   View,
-  Text,
   SafeAreaView,
   StyleSheet,
   Alert,
   StatusBar,
-  TouchableOpacity,
   Image,
 } from 'react-native';
-import { Camera, CameraType } from 'expo-camera';
+import { Camera } from 'expo-camera';
 import * as MediaLibrary from 'expo-media-library';
 import { useState, useEffect, useRef } from 'react';
 import CameraButton from '../components/CameraButton';
+import { useDispatch } from 'react-redux';
+import { setImage as dispatchImage } from '../redux/features/profileImage/profileImageSlice';
 
 function CameraScreen() {
   const [image, setImage] = useState(null);
@@ -20,6 +20,7 @@ function CameraScreen() {
   const [flash, setFlash] = useState(Camera.Constants.FlashMode.off);
   const cameraRef = useRef(null);
   const router = useRouter();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     askPermissions();
@@ -55,7 +56,8 @@ function CameraScreen() {
   const saveImage = async () => {
     if (image) {
       try {
-        await MediaLibrary.createAssetAsync(image);
+        // await MediaLibrary.createAssetAsync(image);
+        dispatch(dispatchImage(image));
         setImage(null);
         router.back();
       } catch (error) {
