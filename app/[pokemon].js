@@ -10,10 +10,14 @@ import {
 import { usePathname } from 'expo-router';
 import MainContainer from '../components/MainContainer';
 import { useEffect, useState } from 'react';
-import { Entypo } from '@expo/vector-icons';
+import { Entypo, Octicons } from '@expo/vector-icons';
 import axios from 'axios';
 import { getTypeIcon } from '../utils/getTypeIcon';
+import { capitalizeFirstLetter } from '../utils/capitalizeFirstLetter';
 import PokemonCard from '../components/PokemonCard';
+import InfosCard from '../components/InfosCard';
+import InfosDropdown from '../components/InfosDropdown';
+import InfosModal from '../components/InfosModal';
 
 const screenWidth = Dimensions.get('window').width;
 const screenWithPadding = screenWidth - 32;
@@ -24,6 +28,8 @@ function pokemonPage() {
   const [speciesData, setSpeciesData] = useState(null);
   const [evolutionChain, setEvolutionChain] = useState(null);
   const [showShiny, setShowShiny] = useState(false);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [modalInfos, setModalInfos] = useState({});
   const URL = `https://pokeapi.co/api/v2/pokemon/${name}`;
   // const URL = `https://pokeapi.co/api/v2/pokemon/eevee`;
 
@@ -46,8 +52,37 @@ function pokemonPage() {
     }
   };
 
-  const capitalizeFirstLetter = string => {
-    return string.charAt(0).toUpperCase() + string.slice(1);
+  const fetchModalInfos = (url, modalType) => {
+    axios
+      .get(url)
+      .then(response => {
+        if (modalType === 'move') {
+          setModalInfos({
+            name: response.data.name,
+            effect: response.data.effect_entries[0].short_effect.replace(
+              ' $effect_chance%',
+              ''
+            ),
+            damageClass: response.data.damage_class.name,
+            moveType: response.data.type.name,
+          });
+        } else {
+          setModalInfos({
+            name: response.data.name,
+            effect: response.data.effect_entries[1].short_effect.replace(
+              ' $effect_chance%',
+              ''
+            ),
+          });
+        }
+      })
+      .catch(err => console.error(err));
+    setModalIsOpen(true);
+  };
+
+  const resetModal = () => {
+    setModalIsOpen(false);
+    setModalInfos({});
   };
 
   const ShinyToggler = () => {
@@ -68,6 +103,11 @@ function pokemonPage() {
   return (
     <>
       <MainContainer>
+        <InfosModal
+          modalInfos={modalInfos}
+          closeModal={resetModal}
+          modalIsOpen={modalIsOpen}
+        />
         <ScrollView contentContainerStyle={styles.container}>
           <Text style={styles.title}>{name.toUpperCase()}</Text>
 
@@ -84,84 +124,71 @@ function pokemonPage() {
           </View>
           <View style={styles.infosContainer}>
             <View style={{ flexDirection: 'row', gap: 5 }}>
-              <View
-                style={[
-                  styles.infoContainer,
-                  { width: screenWithPadding / 2 - 2.5 },
-                ]}
-              >
-                <View style={styles.infoContainerHeader}>
-                  <Text style={styles.infoTitle}>Height</Text>
-                </View>
-                <View style={styles.infoContainerBody}>
-                  <Text>{pokemonData?.height / 10} m</Text>
-                </View>
-              </View>
-              <View
-                style={[
-                  styles.infoContainer,
-                  { width: screenWithPadding / 2 - 2.5 },
-                ]}
-              >
-                <View style={styles.infoContainerHeader}>
-                  <Text style={styles.infoTitle}>Weight</Text>
-                </View>
-                <View style={styles.infoContainerBody}>
-                  <Text>{pokemonData?.weight / 10} kg</Text>
-                </View>
-              </View>
+              <InfosCard title={'Height'} width={screenWithPadding / 2 - 2.5}>
+                <Text>{pokemonData?.height / 10} m</Text>
+              </InfosCard>
+              <InfosCard title={'Weight'} width={screenWithPadding / 2 - 2.5}>
+                <Text>{pokemonData?.weight / 10} kg</Text>
+              </InfosCard>
             </View>
-            <View style={styles.infoContainer}>
-              <View style={styles.infoContainerHeader}>
-                <Text style={styles.infoTitle}>Type(s)</Text>
-              </View>
-              <View
-                style={[styles.infoContainerBody, { flexDirection: 'row' }]}
-              >
-                {pokemonData &&
-                  pokemonData?.types?.map(item => {
-                    return (
+            <InfosCard title={'Type(s)'} flexDirection={'row'}>
+              {pokemonData &&
+                pokemonData?.types?.map(item => {
+                  return (
+                    <TouchableOpacity key={item.type.name + name}>
                       <Image
-                        key={item.type.name + name}
                         style={styles.typeIcon}
                         source={getTypeIcon(item.type.name)}
                       />
-                    );
-                  })}
-              </View>
-            </View>
-            <View style={styles.infoContainer}>
-              <View style={styles.infoContainerHeader}>
-                <Text style={styles.infoTitle}>Abilities</Text>
-              </View>
-              <View>
-                {pokemonData &&
-                  pokemonData?.abilities?.map(item => {
-                    return (
-                      <Text style={{ fontSize: 18 }} key={item.ability.name}>
+                    </TouchableOpacity>
+                  );
+                })}
+            </InfosCard>
+            <InfosCard title={'Abilities'}>
+              {pokemonData &&
+                pokemonData?.abilities?.map(item => {
+                  return (
+                    <View
+                      key={item.ability.name}
+                      style={{
+                        flexDirection: 'row',
+                        gap: 10,
+                        alignItems: 'center',
+                      }}
+                    >
+                      <Text style={{ fontSize: 18 }}>
                         {capitalizeFirstLetter(item.ability.name)}
                       </Text>
-                    );
-                  })}
-              </View>
-            </View>
-            <View style={styles.infoContainer}>
-              <View style={styles.infoContainerHeader}>
-                <Text style={styles.infoTitle}>Evolution Chain</Text>
-              </View>
+                      <TouchableOpacity
+                        onPress={() =>
+                          fetchModalInfos(item.ability.url, 'ability')
+                        }
+                      >
+                        <Octicons name="question" size={22} color="white" />
+                      </TouchableOpacity>
+                    </View>
+                  );
+                })}
+            </InfosCard>
+            <InfosDropdown title="Evolution Chain">
               <View>
                 {evolutionChain && (
-                  <View style={styles.evolutionsContainer}>
-                    <PokemonCard name={evolutionChain?.species?.name} />
+                  <View style={styles.rowContainer}>
+                    <PokemonCard
+                      marginVertical={5}
+                      name={evolutionChain?.species?.name}
+                    />
                     {evolutionChain?.evolves_to[0]?.species &&
                     evolutionChain?.evolves_to.length <= 1 ? (
                       <PokemonCard
+                        marginVertical={5}
                         name={evolutionChain?.evolves_to[0]?.species?.name}
                       />
                     ) : null}
                     {evolutionChain?.evolves_to[0]?.evolves_to[0]?.species &&
                     evolutionChain?.evolves_to.length <= 1 ? (
                       <PokemonCard
+                        marginVertical={5}
                         name={
                           evolutionChain?.evolves_to[0]?.evolves_to[0]?.species
                             ?.name
@@ -173,49 +200,60 @@ function pokemonPage() {
                 {evolutionChain && evolutionChain.evolves_to.length > 1
                   ? evolutionChain?.evolves_to?.map(item => {
                       return (
-                        <View style={styles.evolutionsContainer}>
-                          <PokemonCard
-                            key={item?.species?.name}
-                            name={item?.species?.name}
-                          />
+                        <View
+                          key={item?.species?.name}
+                          style={styles.rowContainer}
+                        >
+                          <PokemonCard name={item?.species?.name} />
                         </View>
                       );
                     })
                   : null}
               </View>
-            </View>
+            </InfosDropdown>
+
             {speciesData?.varieties?.length > 1 && (
-              <View style={styles.infoContainer}>
-                <View style={styles.infoContainerHeader}>
-                  <Text style={styles.infoTitle}>Varieties</Text>
-                </View>
-                <View>
-                  {speciesData?.varieties?.map(item => {
-                    if (item.pokemon.name !== name) {
-                      return (
-                        <PokemonCard
-                          name={item.pokemon.name}
-                          key={item.pokemon.name}
-                        />
-                      );
-                    }
-                  })}
-                </View>
-              </View>
+              <InfosDropdown title="Varieties">
+                {speciesData?.varieties?.map(item => {
+                  if (item.pokemon.name !== name) {
+                    return (
+                      <PokemonCard
+                        marginVertical={5}
+                        name={item.pokemon.name}
+                        key={item.pokemon.name}
+                      />
+                    );
+                  }
+                })}
+              </InfosDropdown>
             )}
             {pokemonData?.forms?.length > 1 && (
-              <View style={styles.infoContainer}>
-                <View style={styles.infoContainerHeader}>
-                  <Text style={styles.infoTitle}>Forms</Text>
-                </View>
-                <View>
-                  {pokemonData?.forms?.map(item => {
-                    if (item.name !== name) {
-                      return <PokemonCard name={item.name} key={item.name} />;
-                    }
-                  })}
-                </View>
-              </View>
+              <InfosDropdown title="Forms">
+                {pokemonData?.forms?.map(item => {
+                  if (item.name !== name) {
+                    return <PokemonCard name={item.name} key={item.name} />;
+                  }
+                })}
+              </InfosDropdown>
+            )}
+            {pokemonData?.moves?.length > 0 && (
+              <InfosDropdown title={'Moves'}>
+                {pokemonData?.moves?.map(item => (
+                  <View key={item.move.name} style={styles.rowContainer}>
+                    <Text style={{ fontSize: 18, marginVertical: 3 }}>
+                      {capitalizeFirstLetter(item.move.name)}
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() => {
+                        fetchModalInfos(item.move.url, 'move');
+                      }}
+                      style={{ marginLeft: 10 }}
+                    >
+                      <Octicons name="question" size={22} color="white" />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </InfosDropdown>
             )}
           </View>
         </ScrollView>
@@ -241,7 +279,6 @@ const styles = StyleSheet.create({
   },
   infosContainer: {
     width: '100%',
-    gap: 10,
   },
   images: {
     height: screenWithPadding,
@@ -253,33 +290,14 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 2,
   },
-  infoContainer: {
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#d9d9d9',
-  },
-  infoContainerHeader: {
-    width: '100%',
-    alignItems: 'center',
-    paddingVertical: 3,
-    borderWidth: 1,
-    borderColor: '#d9d9d9',
-    backgroundColor: 'rgba(255, 255, 255, .6)',
-  },
-  infoTitle: {
-    fontSize: 20,
-    fontWeight: 500,
-  },
-  infoContainerBody: {
-    padding: 5,
-  },
   typeIcon: {
     margin: 3,
     height: 40,
     width: 40,
   },
-  evolutionsContainer: {
+  rowContainer: {
     flexDirection: 'row',
+    alignItems: 'center',
   },
 });
 
