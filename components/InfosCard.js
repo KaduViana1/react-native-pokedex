@@ -1,10 +1,12 @@
 import { View, Text, StyleSheet } from 'react-native';
 
-function InfosCard({ children, title, flexDirection, width }) {
+function InfosCard({ children, title, flexDirection, width, fontSize }) {
   return (
     <View style={[styles.infoContainer, { width: width ?? null }]}>
       <View style={styles.infoContainerHeader}>
-        <Text style={styles.infoTitle}>{title}</Text>
+        <Text style={[styles.infoTitle, { fontSize: fontSize ?? 20 }]}>
+          {title}
+        </Text>
       </View>
       <View
         style={[
@@ -34,7 +36,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, .6)',
   },
   infoTitle: {
-    fontSize: 20,
     fontWeight: 500,
   },
   infoContainerBody: {

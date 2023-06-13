@@ -7,7 +7,7 @@ import {
   Dimensions,
   ScrollView,
 } from 'react-native';
-import { usePathname } from 'expo-router';
+import { usePathname, useRouter } from 'expo-router';
 import MainContainer from '../components/MainContainer';
 import { useEffect, useState } from 'react';
 import { Entypo, Octicons } from '@expo/vector-icons';
@@ -31,7 +31,7 @@ function pokemonPage() {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalInfos, setModalInfos] = useState({});
   const URL = `https://pokeapi.co/api/v2/pokemon/${name}`;
-  // const URL = `https://pokeapi.co/api/v2/pokemon/eevee`;
+  const router = useRouter();
 
   useEffect(() => {
     fetchPokemonData();
@@ -48,7 +48,7 @@ function pokemonPage() {
       );
       setEvolutionChain(evolutionChainResponse.data.chain);
     } catch (err) {
-      console.error(err);
+      setPokemonData(null);
     }
   };
 
@@ -100,6 +100,14 @@ function pokemonPage() {
     );
   };
 
+  if (!pokemonData) {
+    return (
+      <MainContainer>
+        <Text>No Results Found</Text>
+      </MainContainer>
+    );
+  }
+
   return (
     <>
       <MainContainer>
@@ -116,8 +124,9 @@ function pokemonPage() {
             <Image
               src={
                 showShiny
-                  ? pokemonData?.sprites.other['official-artwork'].front_shiny
-                  : pokemonData?.sprites.other['official-artwork'].front_default
+                  ? pokemonData?.sprites?.other['official-artwork'].front_shiny
+                  : pokemonData?.sprites?.other['official-artwork']
+                      .front_default
               }
               style={styles.images}
             />
@@ -135,7 +144,10 @@ function pokemonPage() {
               {pokemonData &&
                 pokemonData?.types?.map(item => {
                   return (
-                    <TouchableOpacity key={item.type.name + name}>
+                    <TouchableOpacity
+                      onPress={() => router.push(`/type/${item.type.name}`)}
+                      key={item.type.name + name}
+                    >
                       <Image
                         style={styles.typeIcon}
                         source={getTypeIcon(item.type.name)}
@@ -174,21 +186,16 @@ function pokemonPage() {
               <View>
                 {evolutionChain && (
                   <View style={styles.rowContainer}>
-                    <PokemonCard
-                      marginVertical={5}
-                      name={evolutionChain?.species?.name}
-                    />
+                    <PokemonCard name={evolutionChain?.species?.name} />
                     {evolutionChain?.evolves_to[0]?.species &&
                     evolutionChain?.evolves_to.length <= 1 ? (
                       <PokemonCard
-                        marginVertical={5}
                         name={evolutionChain?.evolves_to[0]?.species?.name}
                       />
                     ) : null}
                     {evolutionChain?.evolves_to[0]?.evolves_to[0]?.species &&
                     evolutionChain?.evolves_to.length <= 1 ? (
                       <PokemonCard
-                        marginVertical={5}
                         name={
                           evolutionChain?.evolves_to[0]?.evolves_to[0]?.species
                             ?.name
@@ -218,7 +225,6 @@ function pokemonPage() {
                   if (item.pokemon.name !== name) {
                     return (
                       <PokemonCard
-                        marginVertical={5}
                         name={item.pokemon.name}
                         key={item.pokemon.name}
                       />

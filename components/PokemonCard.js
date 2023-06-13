@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useRouter } from 'expo-router';
 import { getTypeIcon } from '../utils/getTypeIcon';
 
-function PokemonCard({ name, marginVertical, marginHorizontal }) {
+function PokemonCard({ name }) {
   const URL = `https://pokeapi.co/api/v2/pokemon/${name}`;
   const [pokemonData, setPokemonData] = useState({});
   const router = useRouter();
@@ -23,16 +23,7 @@ function PokemonCard({ name, marginVertical, marginHorizontal }) {
   };
 
   return (
-    <TouchableOpacity
-      onPress={goToPokemonPage}
-      style={[
-        styles.card,
-        {
-          marginHorizontal: marginHorizontal ?? 10,
-          marginVertical: marginVertical ?? 10,
-        },
-      ]}
-    >
+    <TouchableOpacity onPress={goToPokemonPage} style={[styles.card]}>
       <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 10 }}>
         {name?.toUpperCase()}
       </Text>
@@ -61,6 +52,7 @@ const styles = StyleSheet.create({
     borderColor: '#d9d9d9',
     alignItems: 'center',
     padding: 5,
+    margin: 5,
   },
   image: {
     width: '80%',

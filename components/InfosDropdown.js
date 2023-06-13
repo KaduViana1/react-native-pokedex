@@ -77,6 +77,7 @@ const styles = StyleSheet.create({
     borderColor: '#d9d9d9',
     marginBottom: 15,
     overflow: 'hidden',
+    width: '100%',
   },
   infoContainerHeader: {
     width: '100%',
