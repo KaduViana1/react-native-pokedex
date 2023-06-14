@@ -5,6 +5,7 @@ import thunk from 'redux-thunk';
 import profileImageReducer from './features/profileImage/profileImageSlice';
 import profileImageDropdownReducer from './features/profileImage/profileImageDropdownSlice';
 import sideBarModalReducer from './features/sideBar/sideBarModalSlice';
+import favoritesReducer from './features/favorites/favoritesSlice';
 
 const persistConfig = {
   key: 'root',
@@ -15,6 +16,7 @@ const rootReducer = combineReducers({
   profileImage: profileImageReducer,
   profileImageDropdown: profileImageDropdownReducer,
   sideBarModal: sideBarModalReducer,
+  favorites: favoritesReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

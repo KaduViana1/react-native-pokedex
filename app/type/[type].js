@@ -22,7 +22,6 @@ function typePage() {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalInfos, setModalInfos] = useState({});
   const type = usePathname().slice(6);
-  // const type = 'bug';
   const [typeData, setTypeData] = useState(null);
   const URL = `https://pokeapi.co/api/v2/type/${type}`;
   const router = useRouter();

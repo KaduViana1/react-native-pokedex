@@ -38,7 +38,7 @@ function Header() {
           >
             <Image
               style={styles.headerButtons}
-              source={profileImage || require('../assets/teste.jpg')}
+              source={profileImage || require('../assets/templateimage.jpg')}
             />
           </TouchableOpacity>
         ),

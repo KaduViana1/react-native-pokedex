@@ -1,14 +1,13 @@
 import { SafeAreaView, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Header from './Header';
-import SideBar from './SideBar';
 import Dropdown from './Dropdown';
 
 function MainContainer({ children }) {
   return (
     <SafeAreaView style={styles.container}>
       <Header />
-      <SideBar />
+
       <Dropdown />
       <LinearGradient
         style={styles.main}

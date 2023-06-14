@@ -7,7 +7,12 @@ function InfosModal({ modalIsOpen, closeModal, modalInfos }) {
   const { name, damageClass, moveType, effect } = modalInfos;
 
   return (
-    <Modal visible={modalIsOpen} onRequestClose={closeModal} transparent>
+    <Modal
+      animationType="fade"
+      visible={modalIsOpen}
+      onRequestClose={closeModal}
+      transparent
+    >
       <View style={styles.container}>
         <View style={styles.modal}>
           <Pressable

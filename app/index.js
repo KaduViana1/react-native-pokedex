@@ -6,7 +6,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import PokemonCard from '../components/PokemonCard';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import MainContainer from '../components/MainContainer';
 
@@ -45,7 +45,7 @@ function Home() {
     <>
       <MainContainer>
         <FlatList
-          ListHeaderComponent={<Text>Pokedex</Text>}
+          ListHeaderComponent={<Text style={styles.title}>Pokedéx</Text>}
           horizontal={false}
           data={pokemonsList}
           numColumns={3}
@@ -62,6 +62,7 @@ function Home() {
 
 const styles = StyleSheet.create({
   view: { alignItems: 'center' },
+  title: { fontSize: 25, fontWeight: 600 },
 });
 
 export default Home;

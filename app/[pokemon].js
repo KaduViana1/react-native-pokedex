@@ -10,7 +10,7 @@ import {
 import { usePathname, useRouter } from 'expo-router';
 import MainContainer from '../components/MainContainer';
 import { useEffect, useState } from 'react';
-import { Entypo, Octicons } from '@expo/vector-icons';
+import { AntDesign, Entypo, Octicons } from '@expo/vector-icons';
 import axios from 'axios';
 import { getTypeIcon } from '../utils/getTypeIcon';
 import { capitalizeFirstLetter } from '../utils/capitalizeFirstLetter';
@@ -18,6 +18,11 @@ import PokemonCard from '../components/PokemonCard';
 import InfosCard from '../components/InfosCard';
 import InfosDropdown from '../components/InfosDropdown';
 import InfosModal from '../components/InfosModal';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  addFavorite,
+  removeFavorite,
+} from '../redux/features/favorites/favoritesSlice';
 
 const screenWidth = Dimensions.get('window').width;
 const screenWithPadding = screenWidth - 32;
@@ -32,6 +37,10 @@ function pokemonPage() {
   const [modalInfos, setModalInfos] = useState({});
   const URL = `https://pokeapi.co/api/v2/pokemon/${name}`;
   const router = useRouter();
+  const [noResults, setNoResults] = useState(false);
+  const favorites = useSelector(state => state.favorites.favorites);
+  const isFavoritee = favorites.includes(name);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     fetchPokemonData();
@@ -89,21 +98,57 @@ function pokemonPage() {
     return (
       <TouchableOpacity
         style={styles.shinyButton}
-        onPress={() => setShowShiny(prev => !prev)}
+        onPress={() => setShowShiny(!showShiny)}
       >
         {showShiny ? (
-          <Entypo name="star" size={40} color="yellow" />
+          <Entypo name="star" size={35} color="yellow" />
         ) : (
-          <Entypo name="star-outlined" size={40} color="yellow" />
+          <Entypo name="star-outlined" size={35} color="yellow" />
         )}
       </TouchableOpacity>
     );
   };
 
+  const FavoriteToggler = () => {
+    return (
+      <>
+        {isFavoritee ? (
+          <TouchableOpacity
+            style={styles.favoriteButton}
+            onPress={() => dispatch(removeFavorite(name))}
+          >
+            <AntDesign name="heart" size={33} color="rgb(255, 0, 102)" />
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={styles.favoriteButton}
+            onPress={() => dispatch(addFavorite(name))}
+          >
+            <AntDesign name="hearto" size={33} color="rgb(255, 0, 102)" />
+          </TouchableOpacity>
+        )}
+      </>
+    );
+  };
+
   if (!pokemonData) {
+    setTimeout(() => setNoResults(true), 1500);
     return (
       <MainContainer>
-        <Text>No Results Found</Text>
+        {noResults && (
+          <View style={styles.notFoundContainer}>
+            <Image
+              style={styles.notFoundImage}
+              source={require('../assets/notfound.png')}
+            />
+            <TouchableOpacity
+              onPress={() => router.back()}
+              style={styles.notFoundButton}
+            >
+              <Text style={styles.notFoundText}>Go Back</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </MainContainer>
     );
   }
@@ -121,6 +166,7 @@ function pokemonPage() {
 
           <View style={styles.imagesContainer}>
             <ShinyToggler />
+            <FavoriteToggler />
             <Image
               src={
                 showShiny
@@ -138,6 +184,38 @@ function pokemonPage() {
               </InfosCard>
               <InfosCard title={'Weight'} width={screenWithPadding / 2 - 2.5}>
                 <Text>{pokemonData?.weight / 10} kg</Text>
+              </InfosCard>
+            </View>
+            <View style={{ flexDirection: 'row', gap: 5 }}>
+              <InfosCard title={'Habitat'} width={screenWithPadding / 2 - 2.5}>
+                <Text>{speciesData?.habitat?.name} </Text>
+              </InfosCard>
+              <InfosCard
+                title={'Leveling Rate'}
+                width={screenWithPadding / 2 - 2.5}
+              >
+                <Text>{speciesData?.growth_rate?.name}</Text>
+              </InfosCard>
+            </View>
+            <View style={{ flexDirection: 'row', gap: 5 }}>
+              <InfosCard
+                title={'Egg Groups'}
+                width={screenWithPadding / 2 - 2.5}
+              >
+                {speciesData?.egg_groups?.length < 2 ? (
+                  <Text>{speciesData?.egg_groups[0]?.name} </Text>
+                ) : (
+                  <Text>
+                    {speciesData?.egg_groups[0]?.name} and{' '}
+                    {speciesData?.egg_groups[1]?.name}
+                  </Text>
+                )}
+              </InfosCard>
+              <InfosCard
+                title={'Hatch Time'}
+                width={screenWithPadding / 2 - 2.5}
+              >
+                <Text>{speciesData?.hatch_counter} cycles </Text>
               </InfosCard>
             </View>
             <InfosCard title={'Type(s)'} flexDirection={'row'}>
@@ -269,6 +347,21 @@ function pokemonPage() {
 }
 
 const styles = StyleSheet.create({
+  notFoundContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  notFoundImage: { width: 280, height: 240, borderRadius: 20 },
+  notFoundButton: {
+    marginTop: 15,
+    borderWidth: 2,
+    borderColor: 'white',
+    paddingVertical: 10,
+    paddingHorizontal: 40,
+    borderRadius: 20,
+  },
+  notFoundText: { fontSize: 20, fontWeight: 600, color: 'white' },
   container: {
     alignItems: 'center',
   },
@@ -292,8 +385,14 @@ const styles = StyleSheet.create({
   },
   shinyButton: {
     position: 'absolute',
-    top: 0,
-    right: 0,
+    top: -27,
+    right: 10,
+    zIndex: 2,
+  },
+  favoriteButton: {
+    position: 'absolute',
+    top: -25,
+    right: 50,
     zIndex: 2,
   },
   typeIcon: {
