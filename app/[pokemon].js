@@ -385,13 +385,13 @@ const styles = StyleSheet.create({
   },
   shinyButton: {
     position: 'absolute',
-    top: -27,
+    top: -23,
     right: 10,
     zIndex: 2,
   },
   favoriteButton: {
     position: 'absolute',
-    top: -25,
+    top: -22,
     right: 50,
     zIndex: 2,
   },

@@ -80,7 +80,7 @@ function typePage() {
         modalIsOpen={modalIsOpen}
       />
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>{type.toUpperCase()}</Text>
+        <Text style={styles.title}>Type: {type.toUpperCase()}</Text>
         <Image style={styles.mainTypeIcon} source={getTypeIcon(type)} />
         <View style={styles.rowContainer}>
           <TypesCard
