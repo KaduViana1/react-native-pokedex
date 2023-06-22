@@ -4,7 +4,7 @@ This is a react native app using expo with expo router, it uses the PokéAPI(htt
 
 In the home page you can see an infinite scroll with a grid of little cards with the name, image and the types of every pokémon.
 
-![Screenshot_1686744113](https://github.com/KaduViana1/react-native-pokedex/assets/119880481/d47342dc-d9ea-4e5f-944e-723db70f2be6)
+![resized-1](https://github.com/KaduViana1/react-native-pokedex/assets/119880481/f639bd53-d781-44a6-993c-c2a248f22145)
 
 You can also open the sidebar menu by pressing in the pokeball in the top left.
 
