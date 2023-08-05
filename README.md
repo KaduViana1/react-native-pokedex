@@ -1,6 +1,6 @@
 A Pokedex APP!!
 
-This is a react native app using expo with expo router, it uses the PokéAPI(https://pokeapi.co/) to show information about any pokémon and redux-toolkit and redux-persist to manage and persist states.
+This is a react native app using expo with expo router, it uses the [PokéAPI](https://pokeapi.co/) to show information about any pokémon and redux-toolkit and redux-persist to manage and persist states.
 
 In the home page you can see an infinite scroll with a grid of little cards with the name, image and the types of every pokémon.
 
